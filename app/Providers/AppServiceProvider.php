@@ -22,23 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Validator::extend('current_password', function ($attribute, $value, $parameters, $validator) {
-            $user = auth()->user();
-            
-            // Log untuk debugging
-            Log::info('Validating current password for user: ' . $user->username);
-            
-            // Periksa password terhadap password_hash
-            $result = Hash::check($value, $user->password_hash);
-            
-            Log::info('Password validation result: ' . ($result ? 'success' : 'failed'));
-            
-            return $result;
-        });
-        
-        // Tambahkan pesan error kustom
-        Validator::replacer('current_password', function ($message, $attribute, $rule, $parameters) {
-            return 'The current password is incorrect.';
+        Validator::extend('password_match', function ($attribute, $value, $parameters, $validator) {
+            $password = $validator->getData()['password'];
+            return Hash::check($value, $password);
         });
     }
 }
