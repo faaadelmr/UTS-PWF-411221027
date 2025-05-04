@@ -23,9 +23,10 @@ class BorrowingFactory extends Factory
     public function definition(): array
     {
         // Note: member_id and book_id should be provided when creating
+        $borrowDate = fake()->dateTimeBetween('-1 month', 'now');
         return [
-            'borrow_date' => fake()->dateTimeBetween('-1 month', 'now'),
-            'return_date' => null, // Initially not returned
+            'borrow_date' => $borrowDate,
+            'return_date' => fake()->dateTimeBetween($borrowDate, date('Y-m-d', strtotime('+2 weeks', $borrowDate->getTimestamp()))),
             'status' => 'borrowed', // Default status
         ];
     }

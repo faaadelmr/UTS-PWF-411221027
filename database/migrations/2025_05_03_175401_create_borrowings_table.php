@@ -17,9 +17,8 @@ return new class extends Migration
             $table->integer('member_id')->unsigned();
             $table->integer('book_id')->unsigned();
             $table->date('borrow_date')->useCurrent();
-            $table->date('return_date')->nullable();
-            $table->enum('status', ['borrowed', 'returned'])->default('borrowed');
-            
+            $table->date('return_date');
+            $table->enum('status', ['borrowed', 'returned'])->default('borrowed'); 
             $table->foreign('member_id')->references('member_id')->on('users');
             $table->foreign('book_id')->references('book_id')->on('books');
         });

@@ -10,27 +10,46 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+
 class BorrowingController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        // For admin, show all borrowings
-        if (Auth::user()->role === 'admin') {
-            $borrowings = Borrowing::with(['user', 'book'])
-                ->orderBy('borrow_date', 'desc')
-                ->paginate(10);
-        } else {
-            // For members, show only their borrowings
-            $borrowings = Borrowing::with(['book'])
-                ->where('member_id', Auth::user()->member_id)
-                ->orderBy('borrow_date', 'desc')
-                ->paginate(10);
-        }
+    public function index(Request $request)
+{
+    $query = Borrowing::with(['book', 'user']);
 
-        return view('borrowings.index', compact('borrowings'));
+    // filter by status jika ada query string ?status=
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // urutkan dari tanggal pinjam terbaru
+    $borrowings = $query
+        ->orderBy('borrow_date', 'desc')
+        ->paginate(10)
+        ->withQueryString(); 
+
+    return view('borrowings.index', compact('borrowings'));
+}
+
+
+    /**
+     * Update status for overdue borrowings
+     */
+    private function updateOverdueStatus()
+    {
+        // Find all active borrowings where return_date is in the past
+        $overdueBorrowings = Borrowing::where('status', 'borrowed')
+            ->whereDate('return_date', '<', now()->toDateString())
+            ->get();
+        
+        // Update their status to overdue
+        foreach ($overdueBorrowings as $borrowing) {
+            $borrowing->status = 'overdue';
+            $borrowing->save();
+        }
     }
 
     /**
@@ -61,6 +80,7 @@ class BorrowingController extends Controller
                     'member_id' => 'required|exists:users,member_id',
                     'book_id' => 'required|exists:books,book_id',
                     'borrow_date' => 'required|date',
+                    'return_date' => 'required|date|after_or_equal:borrow_date',
                 ]);
                 
                 $memberId = $validated['member_id'];
@@ -68,6 +88,7 @@ class BorrowingController extends Controller
                 $validated = $request->validate([
                     'book_id' => 'required|exists:books,book_id',
                     'borrow_date' => 'required|date',
+                    'return_date' => 'required|date|after_or_equal:borrow_date',
                 ]);
                 
                 $memberId = Auth::user()->member_id;
@@ -85,6 +106,7 @@ class BorrowingController extends Controller
                 'member_id' => $memberId,
                 'book_id' => $book->book_id,
                 'borrow_date' => $validated['borrow_date'],
+                'return_date' => $validated['return_date'],
                 'status' => 'borrowed',
             ]);
             
@@ -95,7 +117,7 @@ class BorrowingController extends Controller
             DB::commit();
             
             return redirect()->route('borrowings.index')
-                ->with('success', 'Book borrowed successfully.');
+                ->with('success', 'Buku berhasil dipinjam.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to borrow book: ' . $e->getMessage());
@@ -134,7 +156,7 @@ class BorrowingController extends Controller
             DB::commit();
             
             return redirect()->route('borrowings.index')
-                ->with('success', 'Book returned successfully.');
+                ->with('success', 'Buku Telah berhasil dikembalikan.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Failed to return book: ' . $e->getMessage());
