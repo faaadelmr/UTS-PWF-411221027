@@ -17,22 +17,29 @@ class BorrowingController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request)
-{
-    $query = Borrowing::with(['book', 'user']);
+    {
+        // Load relasi book & user
+        $query = Borrowing::with(['book', 'user']);
 
-    // filter by status jika ada query string ?status=
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
+        // Jika role member, batasi hanya milik member tersebut
+        if (Auth::user()->role === 'member') {
+            $query->where('member_id', Auth::user()->member_id);
+        }
+
+        // Filter by status jika ada query string ?status=
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Urutkan dari tanggal pinjam terbaru
+        $borrowings = $query
+            ->orderBy('borrow_date', 'desc')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('borrowings.index', compact('borrowings'));
     }
 
-    // urutkan dari tanggal pinjam terbaru
-    $borrowings = $query
-        ->orderBy('borrow_date', 'desc')
-        ->paginate(10)
-        ->withQueryString(); 
-
-    return view('borrowings.index', compact('borrowings'));
-}
 
 
     /**

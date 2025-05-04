@@ -106,7 +106,7 @@
                                                 Lihat
                                             </a>
                                             @if(in_array($borrowing->status, ['borrowed','overdue']))
-                                                <form action="{{ route('borrowings.return', $borrowing) }}" method="POST">
+                                                <form action="{{ route('borrowings.return', $borrowing) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengembalikan buku ini?');">
                                                     @csrf
                                                     <button type="submit"
                                                             class="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700">
