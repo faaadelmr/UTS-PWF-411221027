@@ -25,7 +25,17 @@ class UserSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        // 2. Create 15 Member Users using Factory
+        User::create([
+            'username' => 'peminjam',
+            'password_hash' => Hash::make('peminjam'), // Ganti dengan password yang aman
+            'full_name' => 'Peminjam',
+            'role' => 'member',
+            'status' => 'active',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        //2. Create 15 Member Users using Factory
         User::factory()->count(15)->create([
             'role' => 'member',
             'status' => 'active',

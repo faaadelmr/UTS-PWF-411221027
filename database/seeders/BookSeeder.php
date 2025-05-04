@@ -13,8 +13,8 @@ class BookSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create 150 Book records using Factory
-        Book::factory()->count(30)->create();
+        // Create Book records using Factory
+        Book::factory()->count(20)->create();
 
         $this->command->info('Book seeding completed: books created.');
     }
