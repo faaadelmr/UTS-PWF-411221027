@@ -11,7 +11,7 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Welcome Card -->
-            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 overflow-hidden shadow-xl sm:rounded-lg mb-6">
+            <div class="bg-gradient-to-r from-red-500 to-indigo-600 overflow-hidden shadow-xl sm:rounded-lg mb-6">
                 <div class="p-6 text-white">
                     <h3 class="text-2xl font-bold mb-2">Selamat datang, {{ Auth::user()->full_name }}!</h3>
                     <p class="opacity-90">{{ now()->format('l, d F Y') }}</p>
@@ -35,7 +35,7 @@
                         <div class="p-5">
                             <div class="flex justify-between items-center">
                                 <div>
-                                    <p class="text-sm text-gray-500 mb-1">Total Buku</p>
+                                    <p class="text-sm text-gray-500 mb-1">Total Judul Buku</p>
                                     <h4 class="text-2xl font-bold text-gray-800">{{ $totalBooks }}</h4>
                                     <p class="text-sm text-green-600 mt-1">{{ $totalAvailableBooks }} Buku Tersedia</p>
                                 </div>

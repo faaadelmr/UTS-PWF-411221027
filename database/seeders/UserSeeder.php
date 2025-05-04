@@ -26,9 +26,9 @@ class UserSeeder extends Seeder
         ]);
 
         User::create([
-            'username' => 'peminjam',
-            'password_hash' => Hash::make('peminjam'), // Ganti dengan password yang aman
-            'full_name' => 'Peminjam',
+            'username' => 'faaadelmr',
+            'password_hash' => Hash::make('password'), // Ganti dengan password yang aman
+            'full_name' => 'Fadel Muhamad Rifai',
             'role' => 'member',
             'status' => 'active',
             'created_at' => now(),
