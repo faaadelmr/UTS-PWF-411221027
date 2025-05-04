@@ -1,11 +1,11 @@
 <section>
     <header>
         <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
+            {{ __('Profil Informasi') }}
         </h2>
 
         <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information.") }}
+            {{ __("Perbaharui informasi profil Anda. Tekan tombol 'Simpan' untuk menyimpan perubahan.") }}
         </p>
     </header>
 
@@ -16,7 +16,7 @@
     <!-- Notifikasi Sukses atau Gagal -->
     @if (session('status') === 'profile-updated')
         <div class="mb-4 font-medium text-sm text-green-600 bg-green-100 p-3 rounded">
-            {{ __('Profile information has been updated successfully.') }}
+            {{ __('Profil berhasil diperbarui.') }}
         </div>
     @endif
 
@@ -31,33 +31,33 @@
         @method('patch')
 
         <div>
-            <x-input-label for="username" :value="__('Username')" />
+            <x-input-label for="username" :value="__('Nama Akun')" />
             <x-text-input id="username" name="username" type="text" class="mt-1 block w-full" :value="old('username', $user->username)" required autofocus autocomplete="username" />
             <x-input-error class="mt-2" :messages="$errors->get('username')" />
         </div>
 
         <div>
-            <x-input-label for="full_name" :value="__('Full Name')" />
+            <x-input-label for="full_name" :value="__('Nama Panjang')" />
             <x-text-input id="full_name" name="full_name" type="text" class="mt-1 block w-full" :value="old('full_name', $user->full_name)" required autocomplete="name" />
             <x-input-error class="mt-2" :messages="$errors->get('full_name')" />
         </div>
 
         <div class="flex items-center gap-4">
-            <x-primary-button type="button" onclick="confirmUpdate()">{{ __('Save') }}</x-primary-button>
+            <x-primary-button type="button" onclick="confirmUpdate()">{{ __('Simpan') }}</x-primary-button>
         </div>
     </form>
 
     <!-- Modal Konfirmasi -->
     <div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden flex items-center justify-center z-50">
         <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Confirm Update') }}</h3>
-            <p class="text-gray-600 mb-6">{{ __('Are you sure you want to update your profile information?') }}</p>
+            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Konfirmasi Update Profil') }}</h3>
+            <p class="text-gray-600 mb-6">{{ __('Apakah Anda yakin ingin memperbarui profil Anda?') }}</p>
             <div class="flex justify-end gap-4">
                 <button type="button" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300" onclick="closeModal()">
-                    {{ __('Cancel') }}
+                    {{ __('Batal') }}
                 </button>
                 <button type="button" class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700" onclick="submitForm()">
-                    {{ __('Yes, Update') }}
+                    {{ __('Ya, Perbarui') }}
                 </button>
             </div>
         </div>
