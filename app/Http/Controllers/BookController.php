@@ -11,11 +11,27 @@ class BookController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $books = Book::paginate(10);
+        $books = Book::query()
+            // cari di title, author, isbn (dikelompokkan)
+            ->when($request->filled('search'), function ($q) use ($request) {
+                $term = '%'.$request->search.'%';
+                $q->where(function ($sub) use ($term) {
+                    $sub->where('title', 'like', $term)
+                        ->orWhere('author', 'like', $term)
+                        ->orWhere('isbn', 'like', $term);
+                });
+            })
+            // filter availability
+            ->when($request->availability === 'available', fn($q) => $q->where('quantity_available', '>', 0))
+            ->when($request->availability === 'unavailable', fn($q) => $q->where('quantity_available', '<=', 0))
+            ->orderByDesc('book_id')
+            ->paginate(10);
+
         return view('books.index', compact('books'));
     }
+    
 
     /**
      * Show the form for creating a new resource.
@@ -42,7 +58,7 @@ class BookController extends Controller
             Book::create($validated);
 
             return redirect()->route('books.index')
-                ->with('success', 'Book created successfully.');
+                ->with('success', 'Buku berhasil ditambahkan.');
         } catch (\Exception $e) {
             Log::error('Failed to create book: ' . $e->getMessage());
             return back()->withInput()->with('error', 'Failed to create book: ' . $e->getMessage());
@@ -82,7 +98,7 @@ class BookController extends Controller
             $book->update($validated);
 
             return redirect()->route('books.index')
-                ->with('success', 'Book updated successfully.');
+                ->with('success', 'Bukuu berhasil diperbarui.');;
         } catch (\Exception $e) {
             Log::error('Failed to update book: ' . $e->getMessage());
             return back()->withInput()->with('error', 'Failed to update book: ' . $e->getMessage());
@@ -99,13 +115,13 @@ class BookController extends Controller
             $activeBorrowings = $book->borrowings()->where('status', 'borrowed')->count();
             
             if ($activeBorrowings > 0) {
-                return back()->with('error', 'Cannot delete book with active borrowings.');
+                return back()->with('error', 'Buku tidak dapat dihapus karena memiliki peminjaman aktif.');
             }
             
             $book->delete();
 
             return redirect()->route('books.index')
-                ->with('success', 'Book deleted successfully.');
+                ->with('success', 'Buku berhasil dihapus.');
         } catch (\Exception $e) {
             Log::error('Failed to delete book: ' . $e->getMessage());
             return back()->with('error', 'Failed to delete book: ' . $e->getMessage());
