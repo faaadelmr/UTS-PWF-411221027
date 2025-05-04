@@ -7,21 +7,14 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
-        // For MySQL, we need to modify the ENUM values
+        // untuk menambahkan status overdue ke kolom status di tabel borrowings
         DB::statement("ALTER TABLE borrowings MODIFY COLUMN status ENUM('borrowed', 'returned', 'overdue') NOT NULL DEFAULT 'borrowed'");
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        // Revert back to original ENUM values
         DB::statement("ALTER TABLE borrowings MODIFY COLUMN status ENUM('borrowed', 'returned') NOT NULL DEFAULT 'borrowed'");
     }
 };

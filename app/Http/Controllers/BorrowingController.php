@@ -13,9 +13,6 @@ use Illuminate\Support\Facades\Log;
 
 class BorrowingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         // Load relasi book & user
@@ -41,27 +38,20 @@ class BorrowingController extends Controller
     }
 
 
-
-    /**
-     * Update status for overdue borrowings
-     */
     private function updateOverdueStatus()
     {
-        // Find all active borrowings where return_date is in the past
+        // Mencari semua peminjaman yang sudah lewat tanggal pengembalian
         $overdueBorrowings = Borrowing::where('status', 'borrowed')
             ->whereDate('return_date', '<', now()->toDateString())
             ->get();
         
-        // Update their status to overdue
+        // pembaruan status peminjaman
         foreach ($overdueBorrowings as $borrowing) {
             $borrowing->status = 'overdue';
             $borrowing->save();
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         $books = Book::where('quantity_available', '>', 0)->get();
@@ -74,9 +64,6 @@ class BorrowingController extends Controller
         return view('borrowings.create', compact('books'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         try {
@@ -103,12 +90,12 @@ class BorrowingController extends Controller
             
             $book = Book::findOrFail($validated['book_id']);
             
-            // Check if book is available
+            // cek apakah buku tersedia
             if ($book->quantity_available <= 0) {
                 throw new \Exception('Book is not available for borrowing.');
             }
             
-            // Create borrowing record
+            // membuat peminjaman baru
             Borrowing::create([
                 'member_id' => $memberId,
                 'book_id' => $book->book_id,
@@ -117,7 +104,7 @@ class BorrowingController extends Controller
                 'status' => 'borrowed',
             ]);
             
-            // Update book quantity
+            // update jumlah buku yang tersedia
             $book->quantity_available -= 1;
             $book->save();
             
@@ -132,30 +119,27 @@ class BorrowingController extends Controller
         }
     }
 
-    /**
-     * Return a borrowed book.
-     */
     public function returnBook(Borrowing $borrowing)
     {
         try {
             DB::beginTransaction();
             
-            // Check if the borrowing belongs to the current user or user is admin
+            // cek apakah peminjaman milik user yang sedang login
             if (Auth::user()->role !== 'admin' && $borrowing->member_id !== Auth::user()->member_id) {
                 throw new \Exception('Unauthorized action.');
             }
             
-            // Check if the book is already returned
+            // cek apakah peminjaman sudah dikembalikan
             if ($borrowing->status === 'returned') {
                 throw new \Exception('Book is already returned.');
             }
             
-            // Update borrowing status
+            // update status peminjaman
             $borrowing->status = 'returned';
             $borrowing->return_date = now();
             $borrowing->save();
             
-            // Update book quantity
+            // update jumlah buku yang tersedia
             $book = $borrowing->book;
             $book->quantity_available += 1;
             $book->save();
@@ -170,13 +154,10 @@ class BorrowingController extends Controller
             return back()->with('error', 'Failed to return book: ' . $e->getMessage());
         }
     }
-
-    /**
-     * Display the specified resource.
-     */
+    
     public function show(Borrowing $borrowing)
     {
-        // Check if the borrowing belongs to the current user or user is admin
+        // cek apakah peminjaman milik user yang sedang login
         if (Auth::user()->role !== 'admin' && $borrowing->member_id !== Auth::user()->member_id) {
             return redirect()->route('borrowings.index')
                 ->with('error', 'Unauthorized action.');

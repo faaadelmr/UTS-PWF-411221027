@@ -8,9 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 class BookController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
     public function index(Request $request)
     {
         $books = Book::query()
@@ -23,7 +21,7 @@ class BookController extends Controller
                         ->orWhere('isbn', 'like', $term);
                 });
             })
-            // filter availability
+            // filter yang tereda di database
             ->when($request->availability === 'available', fn($q) => $q->where('quantity_available', '>', 0))
             ->when($request->availability === 'unavailable', fn($q) => $q->where('quantity_available', '<=', 0))
             ->orderByDesc('book_id')
@@ -33,17 +31,13 @@ class BookController extends Controller
     }
     
 
-    /**
-     * Show the form for creating a new resource.
-     */
+
     public function create()
     {
         return view('books.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
     public function store(Request $request)
     {
         try {
@@ -65,25 +59,17 @@ class BookController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
+
     public function show(Book $book)
     {
         return view('books.show', compact('book'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Book $book)
     {
         return view('books.edit', compact('book'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Book $book)
     {
         try {
@@ -105,13 +91,10 @@ class BookController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Book $book)
     {
         try {
-            // Check if book has active borrowings
+            // cekk apakah buku memiliki peminjaman aktif
             $activeBorrowings = $book->borrowings()->where('status', 'borrowed')->count();
             
             if ($activeBorrowings > 0) {
